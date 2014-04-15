@@ -1,19 +1,16 @@
 define(["kendo", "app/data/local"], function (kendo, localData) {
     "use strict";
 
-    var account = "",
-        username = "",
+    var username = "",
         password = "";
 
     var init = function (data) {
-        account = data.account || "";
         username = data.username || "";
         password = data.password || "";
     };
 
     var isSet = function () {
-        return account && account !== ""
-            && username && username !== ""
+        return username && username !== ""
             && password && password !== "";
     };
 
@@ -22,7 +19,6 @@ define(["kendo", "app/data/local"], function (kendo, localData) {
     var login = kendo.observable({
         init: init,
         isSet: isSet,
-        account: account,
         username: username,
         password: password
     });

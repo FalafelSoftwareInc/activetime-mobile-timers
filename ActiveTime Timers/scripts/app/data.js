@@ -1,5 +1,8 @@
 define(["jQuery", "kendo", "app/config", "app/utils", "app/data/models", "app/timer", "app/data/local"], function ($, kendo, config, utils, dataModels, timer, localData) {
     "use strict";
+    
+    var BASE_URL = "http://activetime-mvc.cloudapp.net/";
+    var data = {};
 
     $.ajaxSetup({
 		error:function(x,e){
@@ -176,6 +179,66 @@ define(["jQuery", "kendo", "app/config", "app/utils", "app/data/models", "app/ti
                 error: _onError,
                 requestStart: _onRequestStart
             });
-        }
+        },
+        
+        login: function () {
+            var deferred = $.Deferred();
+            $.ajax({
+    			type: "POST",
+    			url: BASE_URL + "/auth/credentials",
+    			data: "userName=" + encodeURIComponent(config.login.username) + "&password=" + encodeURIComponent(config.login.password),
+    			dataType: "json",
+    			cache: false,
+    			success: function (data, status, xhr) {
+                    deferred.resolve();
+    				//location.replace(jqLogin.data("redirect"));
+    			}
+    		}).fail(function (jqXHR, textStatus, errorThrown) {
+    			_onError(errorThrown);
+                deferred.fail();
+    		});
+            return deferred.promise();
+        },
+
+		getData: function (date) {
+			var expand = data.period ? "[ProjectWorkerTimes,WorkerProjects]" : "[ProjectWorkerTimes,WorkerProjects,ProjectBillingCodes]";
+			return $.ajax({
+				type: "GET",
+				contentType: "application/json",
+				url: BASE_URL + "/api/workerperiod",
+				cache: false,
+				data: {
+					Date: kendo.toString(date, 'yyyy-MM-dd'),
+					Expand: expand
+				},
+				success: function (response) {
+                    debugger;
+					/*if (response.period) {
+						data.period = response.period;
+						dsPeriod.read();
+					}
+					if (response.projectBillingCodes) {
+						data.projectBillingCodes = response.projectBillingCodes;
+						dsBillingCodes.read();
+					}
+					if (response.workerProjects) {
+						data.workerProjects = response.workerProjects;
+						dsProjects.read();
+					}
+					if (response.projectWorkerTimes) {
+						data.projectWorkerTimes = response.projectWorkerTimes;
+						dsProjectWorkerTimes.read();
+					}*/
+				}
+			})
+			.fail(function (jqXHR, textStatus, errorThrown) {
+                debugger;
+				//if (jqXHR.status === 401) {
+				//	$.post("/Account/LogOff").always(function () {
+				//		location.replace("/Account/Login?returnUrl=" + encodeURIComponent(location.pathname));
+				//	});
+				//}
+			});
+		}
     };
 });
