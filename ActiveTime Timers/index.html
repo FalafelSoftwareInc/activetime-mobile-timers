@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta charset="utf-8" />
+        <script src="cordova.js"></script>
+        <script type="text/javascript">
+            require = undefined;
+            define = undefined;
+        </script>
+        <script data-main="scripts/main" src="scripts/libs/require.js"></script>
+
+        <link href="kendo/styles/kendo.mobile.all.min.css" rel="stylesheet" />
+        <link href="styles/mobiscroll.datetime-2.4.min.css" rel="stylesheet" />
+        <link href="styles/main.css" rel="stylesheet" />
+        <link href="styles/android.css" rel="stylesheet" />
+        <link href="styles/ios.css" rel="stylesheet" />
+    </head>
+    <body>
+
+        <!-- Views -->
+
+        <div data-role="view" id="timers-view" data-title="Timers" style="display: none;" data-model="app.views.timers.viewModel" data-init="app.views.timers.init" data-show="app.views.timers.show">
+            <header data-role="header">
+                <div data-role="navbar">
+                    <span data-role="view-title"></span>
+                </div>
+                <div class="header-actions">
+                    <span data-role="button" data-icon="stop" data-bind="click: onStop">Stop</span>
+                    <a href="#select-project-view" data-role="button" data-icon="add">Add</a>
+                    <span data-role="button" data-icon="globe" data-bind="click: onOpenTickspot">TickSpot</span>
+                </div>
+                <div class="header-actions timer-total">
+                    Total Duration: <span data-bind="text: timerTotalDuration"></span>
+                </div>
+            </header>
+
+            <ul id="timers-list" data-role="listview" data-bind="source: timers" data-template="timer-template"></ul>
+
+            <ul data-role="actionsheet" id="timerActions" data-popup='{"direction": "left"}'>
+                <li class="km-actionsheet-title">Timer</li>
+                <li><a href="#" data-action="app.views.timers.submitTimer">Edit &amp; Submit Timer</a></li>
+                <li><a href="#" data-action="app.views.timers.editNote">Edit Note</a></li>
+                <li><a href="#" data-action="app.views.timers.deleteTimer">Delete Timer</a></li>
+            </ul>
+        </div>
+
+        <div data-role="view" id="login-view" data-title="Log In" data-layout="" style="display: none;" data-model="app.views.login.viewModel">
+            <div class="logo"><img src="images/TickspotMobileTimers-Login.png" /></div>
+            <div>
+                <ul data-role="listview" data-style="inset" data-type="group">
+                    <li>Enter the URL you use for TickSpot:
+                        <ul>
+                            <li class="url">https:// <input type="url" autocorrect="off" autocapitalize="off" data-bind="value: config.login.account" /> .tickspot.com</li>
+                        </ul>
+                    </li>
+                    <li>Enter your login information:
+                        <ul>
+                            <li>
+                                <input class="full-input" type="email" placeholder="Email Address" data-bind="value: config.login.username" />
+                            </li>
+                            <li>
+                                <input class="full-input" type="password" placeholder="Password" data-bind="value: config.login.password" />
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <ul>
+                            <li data-role="button" data-click="app.views.login.login">Log In</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div data-role="view" id="settings-view" data-title="Settings" style="display: none;" data-model="app.views.settings.viewModel">
+            <header data-role="header">
+                <div data-role="navbar">
+                    <span data-role="view-title"></span>
+                </div>
+            </header>
+
+            <div>
+                <ul data-role="listview" data-style="inset" data-type="group">
+                    <li>
+                        <ul>
+                            <li data-role="button" data-click="app.views.settings.logout">Log Out</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <ul>
+                            <li>Add time stamps to notes <input data-role="switch" data-bind="checked: addTimeStamps" /></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <ul>
+                            <li>Keep timer after submit <input data-role="switch" data-bind="checked: keepTimers" /></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div data-role="view" id="select-project-view" data-title="Select Project" style="display: none;" data-model="app.views.selectProject.viewModel" data-init="app.views.selectProject.onInit" data-hide="app.views.selectProject.onHide">
+            <header data-role="header">
+                <div data-role="navbar">
+                    <span data-role="backbutton" data-align="left">Back</span>
+                    <span data-role="view-title"></span>
+                    <span data-role="button" data-icon="refresh" data-align="right" data-bind="click: onRefresh"></span>
+                </div>
+                <div id="select-project-filter-wrapper">
+                    <input id="select-project-filter" type="text" placeholder="Search..." data-bind="events: { keyup: onFilterChange }" />
+                </div>
+            </header>
+
+            <ul data-role="listview" data-bind="source: projects" data-template="select-project-template"></ul>
+        </div>
+
+        <div data-role="view" id="select-task-view" data-title="Select Task" style="display: none;" data-show="app.views.selectTask.show">
+            <header data-role="header">
+                <div data-role="navbar">
+                    <span data-role="backbutton" data-align="left">Back</span>
+                    <span data-role="view-title"></span>
+                    <span data-role="button" data-icon="refresh" data-align="right" data-click="app.views.selectTask.onRefresh"></span>
+                </div>
+            </header>
+
+            <ul data-role="listview" data-source="app.views.selectTask.tasks" data-click="app.views.selectTask.onSelect" data-template="select-task-template"></ul>
+        </div>
+
+        <div data-role="view" id="submit-view" data-title="Edit Timer" style="display: none;" data-init="app.views.submit.init" data-show="app.views.submit.show" data-hide="app.views.submit.hide">
+            <header data-role="header">
+                <div data-role="navbar">
+                    <span data-role="backbutton" data-align="left">Back</span>
+                    <span data-role="view-title"></span>
+                    <span data-role="button" data-align="right" data-click="app.views.submit.onSubmit">Submit</span>
+                </div>
+            </header>
+
+            <div class="titles-wrapper timer">
+                <span class="customer-name" data-bind="text: clientName"></span>
+                <span class="project-name" data-bind="text: projectName"></span>
+                <span class="task-name" data-bind="text: taskName"></span>
+            </div>
+            <div class="duration"></div>
+            <div class="date-wrapper">Date:
+                <input class="date" type="date" data-bind="value: date" />
+                <span data-bind="text: daysAgo, attr: { class: isToday }"></span>
+            </div>
+            <div class="notes-wrapper">
+                <div>Notes:</div>
+                <textarea autocorrect="on" autocapitalize="on" data-bind="value: notes"></textarea>
+            </div>
+        </div>
+
+        <div data-role="view" id="entries-view" data-title="Today's Entries" data-show="app.views.entries.show" data-model="app.views.entries.viewModel" style="display: none;">
+            <header data-role="header">
+                <div data-role="navbar">
+                    <span data-role="view-title"></span>
+                </div>
+                <div class="header-actions">
+                    <span data-role="button" data-icon="globe" data-click="app.views.entries.onOpenTickspot">TickSpot</span>
+                </div>
+                <div class="header-actions timer-total">
+                    Total Duration: <span data-bind="text: timerTotalDuration"></span>
+                </div>
+            </header>
+
+            <div id="entries-listview"></div>
+        </div>
+
+        <div id="edit-note-view" data-role="modalview" style="width: 100%; height: 100%; display: none;">
+            <div data-role="header">
+                <div data-role="navbar">
+                    <span>Edit Note</span>
+                    <a data-click="app.views.timers.editNoteDone" data-role="button" data-align="right">Done</a>
+                </div>
+            </div>
+
+            <textarea autocorrect="on" autocapitalize="on"></textarea>
+        </div>
+
+        <div id="error-view" data-role="modalview">
+            <div class="error-header" data-role="header" style="display: none;">
+                <div data-role="navbar">
+                    <span>Error</span>
+                    <a data-click="app.closeErrorModal" data-role="button" data-align="right">Close</a>
+                </div>
+            </div>
+
+            <div class="message"></div>
+        </div>
+
+
+        <!-- Layouts -->
+
+        <div data-role="layout" data-id="tabstrip">
+            <div data-role="footer">
+                <div data-role="tabstrip">
+                    <a href="#timers-view" data-icon="recents">Timers</a>
+                    <a href="#entries-view" data-icon="bookmarks">Entries</a>
+                    <a href="#settings-view" data-icon="settings">Settings</a>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Templates -->
+
+        <script id="recent-project-template" type="text/x-kendo-template">
+            <div data-bind="attr: {data-task-id: id}">
+                <span data-bind="text: name"></span>
+            </div>
+        </script>
+
+        <script id="timer-template" type="text/x-kendo-template">
+            <div class="timer" data-bind="click: onSelected, attr: {data-task-id: taskId}, cssClass: {km-selected: startedAt, no-time: !hasTime}" data-hold="app.views.timers.onHold">
+                <a data-role="detailbutton" class="detailbutton-left" data-icon="play" data-bind="invisible: startedAt, click: onSelected2"></a>
+                <a data-role="detailbutton" class="detailbutton-left" data-icon="stop" data-bind="visible: startedAt, click: onStop"></a>
+                <div class="timer-labels">
+                    <span class="customer-name" data-bind="text: clientName"></span>
+                    <span class="project-name" data-bind="text: projectName"></span>
+                    <span class="task-name" data-bind="text: taskName"></span>
+                    <span class="duration" data-bind="text: displayTime"></span>
+                </div>
+                <a data-role="detailbutton" data-rel="actionsheet" href="\\#timerActions" data-actionsheet-context="#:data.uid#" data-icon="more"></a>
+                <div class="notes" data-bind="text: notes, visible: notes"></div>
+            </div>
+        </script>
+
+        <script id="todays-entry-template" type="text/x-kendo-template">
+            <div class="timer">
+                <div class="timer-labels">
+                    <span class="customer-name">#=clientName#</span>
+                    <span class="project-name">#=projectName#</span>
+                    <span class="task-name">#=taskName#</span>
+                    <span class="duration">#=app.views.entries.displayTime(data)#</span>
+                </div>
+                #if(notes){#<div class="notes">#=notes#</div>#}#
+            </div>
+        </script>
+
+        <script id="select-project-template" type="text/x-kendo-template">
+            <a href="\\#select-task-view?clientId=#=clientId#&clientName=#=encodeURIComponent(data.clientName)#&projectId=#=id#&projectName=#=encodeURIComponent(data.name)#" data-bind="text: name"></a>
+        </script>
+
+        <script id="select-task-template" type="text/x-kendo-template">
+            <a>#=name#</a>
+        </script>
+    </body>
+</html>

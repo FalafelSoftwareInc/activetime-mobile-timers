@@ -1,0 +1,79 @@
+.km-ios7 .km-view .km-navbar {
+    margin-top:10px;
+}
+
+.km-ios7 .timer
+{
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+}
+
+.km-ios7 .timer.km-selected
+{
+    background-color: rgb(162, 163, 165);
+}
+
+.km-tablet .km-ios textarea
+{
+    font-size: 1.4em;
+}
+
+.km-root .km-ios7 .km-detail
+{
+    border: none;
+    background: transparent;
+}
+
+.km-ios .km-detail
+{
+    width: 1.3em;
+    height: 1.3em;
+    top: 1.5em;
+    font-size: 1.5rem;
+}
+
+.km-ios .km-list > li
+{
+    border-bottom: 1px solid #404040;
+}
+
+.km-ios .km-listview li.km-button
+{
+    color: #000;
+    text-shadow: 0 0;
+}
+
+.km-ios7 .km-listview .km-group-title
+{
+    margin-top: 0;
+    border-top: none;
+}
+
+.km-ios .header-actions
+{
+    background-color: #ddd;
+}
+
+.km-ios .km-actionsheet-wrapper
+{
+    font-size: 1rem;
+}
+
+.km-ios7 .km-header
+{
+    background-color: rgba(244,244,244,0.95);
+}
+
+.km-ios7 .km-list>li.km-button
+{
+    color: #00F;
+}
+
+.km-ios7 .timer-total {
+    color: #333;
+}
+
+.km-ios7 .notes {
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;   
+}
