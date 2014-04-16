@@ -1,13 +1,24 @@
-define(["jQuery", "kendo", "app/config", "app/utils", "app/data/models", "app/timer", "app/data/local"], function ($, kendo, config, utils, dataModels, timer, localData) {
+define(["jQuery", "kendo", "app/config", "app/utils", "app/timer", "app/data/local"], function ($, kendo, config, utils, timer, localData) {
     "use strict";
     
     var BASE_URL = "http://activetime-mvc.cloudapp.net/";
-    var data = {};
+
+    var dsBillingCodes = new kendo.data.DataSource({
+        data: [],
+        sort: [{ field: "billingCode_Name"}]
+    });
+    var dsProjects = new kendo.data.DataSource({
+        data: [],
+        group: [{ field: "parent_Project_Name" }],
+        sort: [{ field: "parent_Project_Name"}, {field: "project_Name"}]
+    });
 
     $.ajaxSetup({
 		error:function(x,e){
 			if (x.status == 0) {
-			    utils.showError('You are offline!!n Please Check Your Network.');
+			    utils.showOffline();
+			} else if (x.status == 401) {
+			    utils.showError('Invalid Login.');
 			} else if (x.status == 404) {
 			    utils.showError('Requested URL not found.');
 			} else if (x.status == 500) {
@@ -28,19 +39,7 @@ define(["jQuery", "kendo", "app/config", "app/utils", "app/data/models", "app/ti
             event.preventDefault();
             return false;
         }
-    };
-    
-    var _serviceUrl = function (controller) {
-        return kendo.format("https://{0}.tickspot.com/api/{1}",
-                            config.login.account,
-                            controller);
-    };
-
-    var _serviceLoginData = function (data) {
-        return $.extend({
-            email: config.login.username,
-            password: config.login.password
-        }, data || {});
+        return true;
     };
 
     var _onTimersChanged = function () {
@@ -73,127 +72,123 @@ define(["jQuery", "kendo", "app/config", "app/utils", "app/data/models", "app/ti
     timers.bind("change", _onTimersChanged);
 
     return {
-        recentProjects: new kendo.data.DataSource({
-            transport: {
-                read: {
-                    url: function () { return _serviceUrl("recent_tasks"); },
-                    type: "GET",
-                    dataType: "xml",
-                    data: _serviceLoginData
-                }
-            },
-            schema: dataModels.recentProjects,
-            error: _onError,
-            requestStart: _onRequestStart
-        }),
-
         timers: timers,
-
-        projects: new kendo.data.DataSource({
-            transport: {
-                read: {
-                    url: function () { return _serviceUrl("projects"); },
-                    type: "GET",
-                    dataType: "xml",
-                    data: function () {
-                        return _serviceLoginData({
-                            open: "true"
-                        });
-                    }
-                }
-            },
-            schema: dataModels.projects,
-            filter: { field: "closedOn", operator: "eq", value: undefined },
-            group: [{ field: "clientName" }],
-            sort: [{ field: "clientName"}, {field: "name"}],
-            error: _onError,
-            requestStart: _onRequestStart
-        }),
-
-        tasks: new kendo.data.DataSource({
-            transport: {
-                read: {
-                    url: function () { return _serviceUrl("clients_projects_tasks"); },
-                    type: "GET",
-                    dataType: "xml",
-                    data: function () {
-                        return _serviceLoginData();
-                    }
-                }
-            },
-            schema: dataModels.tasks,
-            sort: [{ field: "position"}],
-            error: _onError,
-            requestStart: _onRequestStart
-        }),
-
-        getClientNameById: function (clientId) {
-            var clients = clientsDataSource.data();
-            for(var i = 0; i < clients.length; i++) {
-                if(clients[i].id === clientId) {
-                    return clients[i].name;
-                }
-            }
-            return "(Unknown)";
-        },
+        projects: dsProjects,
+        tasks: dsBillingCodes,
 
         createEntry: function (timer, success) {
-            var entryData = _serviceLoginData({
-                task_id: timer.taskId,
-                hours: kendo.toString(timer.durationSeconds / 60 / 60, "n2"),
-                date: timer.date || kendo.toString(new Date(), "yyyy-MM-dd"),
-                notes: timer.notes || ""
-            });
+            //{"projectWorkerTimes":[{"projectID":20,"date":"2014-04-16","hours":0,"description":"(test / delete me)","projectBillingCodeID":25,"referenceNo":"","id":0}]}
+            var entryData = {
+                projectWorkerTimes: [{
+                    id: 0,
+                    projectID: timer.projectId,
+                    projectBillingCodeID: timer.taskId,
+                    hours: kendo.toString(timer.durationSeconds / 60 / 60, "n2"),
+                    date: timer.date || kendo.toString(new Date(), "yyyy-MM-dd"),
+                    description: timer.notes || "",
+                    referenceNo: ""
+                }]
+            };
             if ( !utils.isOnline() ) {
                 utils.showOffline();
                 return;
             }
             utils.showLoading();
-            $.post(_serviceUrl("create_entry"), entryData)
-                .done(function () { utils.hideLoading(); success(); })
-                .fail(function () { utils.hideLoading(); console.log("error while submitting.", arguments); });
-        },
-
-        todaysEntries: function () {
-            return new kendo.data.DataSource({
-                transport: {
-                    read: {
-                        url: function () { return _serviceUrl("entries"); },
-                        type: "GET",
-                        dataType: "xml",
-                        data: function () {
-                            var start = new Date();
-                            var end = new Date();
-                            start.setHours(0,0,0,0);
-                            end.setHours(24,0,0,0);
-
-                            return _serviceLoginData({
-                                user_email: config.login.username,
-                                start_date: kendo.toString(start, "u"),
-                                end_date: kendo.toString(end, "u")
-                            });
-                        }
-                    }
-                },
-                schema: dataModels.todaysEntries(),
-                error: _onError,
-                requestStart: _onRequestStart
+            $.ajax({
+                type: "POST",
+				contentType: "application/json",
+				url: BASE_URL + "api/projectworkertime",
+                data: kendo.stringify(entryData),
+                success: function () { utils.hideLoading(); success(); },
+                error: function () { utils.hideLoading(); console.log("error while submitting.", arguments); }
             });
+        },
+        
+        todaysEntries: function () {
+            var date = new Date();
+			var expand = "[ProjectWorkerTimes,WorkerProjects,ProjectBillingCodes]";
+            var parentProjectIds = {};
+            var projectIds = {};
+            var billingCodes = {};
+            var resultData = new kendo.data.DataSource({data:[]});
+
+            if(!_onRequestStart()) {
+                return resultData;
+            }
+
+            utils.showLoading();
+			$.ajax({
+				type: "GET",
+				contentType: "application/json",
+				url: BASE_URL + "api/workerperiod",
+				cache: false,
+				data: {
+					Date: kendo.toString(date, 'yyyy-MM-dd'),
+					Expand: expand
+				},
+				success: function (response) {
+                    var result;
+                    var today = kendo.toString(new Date(), "yyyy-MM-dd");
+            		$.each(response.projectBillingCodes, function (index, item) {
+                        billingCodes[item.projectBillingCodeID.toString()] = item.billingCode_Name;
+                    });
+            		$.each(response.workerProjects, function (index, item) {
+                        parentProjectIds[item.projectID.toString()] = item.parent_Project_Name;
+                        projectIds[item.projectID.toString()] = item.project_Name;
+                    });
+                    result = $.map(response.projectWorkerTimes, function (item) {
+                        if(item.date.indexOf(today) === 0) {
+                            return timer.create({
+                                clientName: parentProjectIds[item.projectID.toString()],
+                                projectId: item.projectID,
+                                projectName: projectIds[item.projectID.toString()],
+                                taskId: item.projectBillingCodeID,
+                                taskName: billingCodes[item.projectBillingCodeID.toString()],
+                                notes: item.description,
+                                durationSeconds: item.hours * 60 * 60
+                            });
+                        } else {
+                            return undefined;
+                        }
+					});
+                    resultData.data(result);
+                    utils.hideLoading();
+				}
+			})
+			.fail(function (jqXHR, textStatus, errorThrown) {
+                utils.hideLoading();
+				if (jqXHR.status === 401) {
+                    utils.showError("Invalid Login.");
+					config.login.set("username", undefined);
+                    config.login.set("password", undefined);
+                    utils.navigate("#login-view");
+				} else {
+                    utils.showError(errorThrown);
+                }
+			});
+            return resultData;
         },
         
         login: function () {
             var deferred = $.Deferred();
+            if(!_onRequestStart()) {
+                deferred.fail();
+                return deferred;
+            }
+            utils.showLoading();
             $.ajax({
     			type: "POST",
-    			url: BASE_URL + "/auth/credentials",
+    			url: BASE_URL + "auth/credentials",
     			data: "userName=" + encodeURIComponent(config.login.username) + "&password=" + encodeURIComponent(config.login.password),
     			dataType: "json",
     			cache: false,
     			success: function (data, status, xhr) {
+                    utils.hideLoading();
                     deferred.resolve();
     				//location.replace(jqLogin.data("redirect"));
     			}
     		}).fail(function (jqXHR, textStatus, errorThrown) {
+                utils.hideLoading();
     			_onError(errorThrown);
                 deferred.fail();
     		});
@@ -201,43 +196,42 @@ define(["jQuery", "kendo", "app/config", "app/utils", "app/data/models", "app/ti
         },
 
 		getData: function (date) {
-			var expand = data.period ? "[ProjectWorkerTimes,WorkerProjects]" : "[ProjectWorkerTimes,WorkerProjects,ProjectBillingCodes]";
+			var expand = "[WorkerProjects,ProjectBillingCodes]";
+
+            if(!_onRequestStart()) {
+                return;
+            }
+
+            utils.showLoading();
 			return $.ajax({
 				type: "GET",
 				contentType: "application/json",
-				url: BASE_URL + "/api/workerperiod",
+				url: BASE_URL + "api/workerperiod",
 				cache: false,
 				data: {
 					Date: kendo.toString(date, 'yyyy-MM-dd'),
 					Expand: expand
 				},
 				success: function (response) {
-                    debugger;
-					/*if (response.period) {
-						data.period = response.period;
-						dsPeriod.read();
-					}
 					if (response.projectBillingCodes) {
-						data.projectBillingCodes = response.projectBillingCodes;
-						dsBillingCodes.read();
+						dsBillingCodes.data(response.projectBillingCodes);
 					}
 					if (response.workerProjects) {
-						data.workerProjects = response.workerProjects;
-						dsProjects.read();
+						dsProjects.data(response.workerProjects);
 					}
-					if (response.projectWorkerTimes) {
-						data.projectWorkerTimes = response.projectWorkerTimes;
-						dsProjectWorkerTimes.read();
-					}*/
+                    utils.hideLoading();
 				}
 			})
 			.fail(function (jqXHR, textStatus, errorThrown) {
-                debugger;
-				//if (jqXHR.status === 401) {
-				//	$.post("/Account/LogOff").always(function () {
-				//		location.replace("/Account/Login?returnUrl=" + encodeURIComponent(location.pathname));
-				//	});
-				//}
+                utils.hideLoading();
+				if (jqXHR.status === 401) {
+                    utils.showError("Invalid Login.");
+					config.login.set("username", undefined);
+                    config.login.set("password", undefined);
+                    utils.navigate("#login-view");
+				} else {
+                    utils.showError(errorThrown);
+                }
 			});
 		}
     };

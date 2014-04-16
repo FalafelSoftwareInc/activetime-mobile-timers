@@ -28,7 +28,7 @@
                 <div class="header-actions">
                     <span data-role="button" data-icon="stop" data-bind="click: onStop">Stop</span>
                     <a href="#select-project-view" data-role="button" data-icon="add">Add</a>
-                    <span data-role="button" data-icon="globe" data-bind="click: onOpenTickspot">TickSpot</span>
+                    <span data-role="button" data-icon="globe" data-bind="click: onOpenWeb">ActiveTime</span>
                 </div>
                 <div class="header-actions timer-total">
                     Total Duration: <span data-bind="text: timerTotalDuration"></span>
@@ -45,7 +45,7 @@
             </ul>
         </div>
 
-        <div data-role="view" id="login-view" data-title="Log In" data-layout="" style="display: none;" data-model="app.views.login.viewModel">
+        <div data-role="view" id="login-view" data-title="Log In" data-layout="" style="display: none;" data-model="app.views.login.viewModel" data-show="app.views.login.show">
             <div class="logo"><img src="images/TickspotMobileTimers-Login.png" /></div>
             <div>
                 <ul data-role="listview" data-style="inset" data-type="group">
@@ -111,7 +111,7 @@
             <ul data-role="listview" data-bind="source: projects" data-template="select-project-template"></ul>
         </div>
 
-        <div data-role="view" id="select-task-view" data-title="Select Task" style="display: none;" data-show="app.views.selectTask.show">
+        <div data-role="view" id="select-task-view" data-title="Select Billing Code" style="display: none;" data-show="app.views.selectTask.show">
             <header data-role="header">
                 <div data-role="navbar">
                     <span data-role="backbutton" data-align="left">Back</span>
@@ -154,7 +154,7 @@
                     <span data-role="view-title"></span>
                 </div>
                 <div class="header-actions">
-                    <span data-role="button" data-icon="globe" data-click="app.views.entries.onOpenTickspot">TickSpot</span>
+                    <span data-role="button" data-icon="globe" data-click="app.views.entries.onOpenWeb">ActiveTime</span>
                 </div>
                 <div class="header-actions timer-total">
                     Total Duration: <span data-bind="text: timerTotalDuration"></span>
@@ -229,18 +229,18 @@
                     <span class="customer-name">#=clientName#</span>
                     <span class="project-name">#=projectName#</span>
                     <span class="task-name">#=taskName#</span>
-                    <span class="duration">#=app.views.entries.displayTime(data)#</span>
+                    <span class="duration">#=displayTime#</span>
                 </div>
                 #if(notes){#<div class="notes">#=notes#</div>#}#
             </div>
         </script>
 
         <script id="select-project-template" type="text/x-kendo-template">
-            <a href="\\#select-task-view?clientId=#=clientId#&clientName=#=encodeURIComponent(data.clientName)#&projectId=#=id#&projectName=#=encodeURIComponent(data.name)#" data-bind="text: name"></a>
+            <a href="\\#select-task-view?clientName=#=encodeURIComponent(data.parent_Project_Name)#&projectId=#=projectID#&projectName=#=encodeURIComponent(data.project_Name)#" data-bind="text: project_Name"></a>
         </script>
 
         <script id="select-task-template" type="text/x-kendo-template">
-            <a>#=name#</a>
+            <a>#=billingCode_Name#</a>
         </script>
     </body>
 </html>

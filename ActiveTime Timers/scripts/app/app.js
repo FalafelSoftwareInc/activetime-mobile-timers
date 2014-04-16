@@ -36,10 +36,6 @@ define(["jQuery", "mobiscroll", "kendo", "../libs/kendo.binder.cssClass", "app/c
         document.addEventListener("resume", _onResume, false);
     };
 
-    var _isUserLoginSaved = function () {
-        return config.login.isSet();
-    };
-
     var _onError = function (error, url, line) {
         console.log(error, url, line);
         utils.showError(error);
@@ -64,11 +60,10 @@ define(["jQuery", "mobiscroll", "kendo", "../libs/kendo.binder.cssClass", "app/c
                 document.addEventListener("deviceready", _onDeviceReady, false);
             }
 
-            var initialView = _isUserLoginSaved() ? "timers-view" : "login-view";
             var kendoApp = new kendo.mobile.Application($("body"), {
                 transition: "slide",
                 layout: "tabstrip",
-                initial: initialView,
+                initial: "login-view",
                 skin: window.device.platform === "Android" ? "flat" : undefined
             });
             utils.init(kendoApp);

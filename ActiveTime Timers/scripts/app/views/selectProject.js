@@ -6,7 +6,7 @@ define(["kendo", "app/timer", "app/data", "app/utils"], function (kendo, appTime
 
     var applyFilter = function (filter) {
         if(filter) {
-            data.projects.filter({logic: "or", filters: [{field: "name", operator: "contains", value: filter}, {field: "clientName", operator: "contains", value: filter}]});
+            data.projects.filter({logic: "or", filters: [{field: "parent_Project_Name", operator: "contains", value: filter}, {field: "project_Name", operator: "contains", value: filter}]});
         } else {
             data.projects.filter([]);
         }
@@ -29,7 +29,7 @@ define(["kendo", "app/timer", "app/data", "app/utils"], function (kendo, appTime
             projects: data.projects,
             
             onRefresh: function (clickEvt) {
-                data.projects.read();
+                data.getData();
             },
             
             onFilterChange: function (keyEvt) {

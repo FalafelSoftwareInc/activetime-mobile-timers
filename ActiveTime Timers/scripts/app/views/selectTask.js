@@ -1,8 +1,7 @@
 define(["kendo", "app/timer", "app/data", "app/utils"], function (kendo, appTimer, data, utils) {
     "use strict";
 
-    var _clientId = 0,
-        _clientName = "",
+    var _clientName = "",
         _projectId = 0,
         _projectName = "";
 
@@ -11,14 +10,12 @@ define(["kendo", "app/timer", "app/data", "app/utils"], function (kendo, appTime
 
         show: function (showEvt) {
             try {
-                _clientId = showEvt.view.params.clientId;
                 _clientName = decodeURIComponent(showEvt.view.params.clientName);
                 _projectId = showEvt.view.params.projectId;
                 _projectName = decodeURIComponent(showEvt.view.params.projectName);
 
                 data.tasks.filter([
-                    { field: "projectId", operator: "eq", value: +_projectId },
-                    { field: "closedOn", operator: "eq", value: undefined }
+                    { field: "projectID", operator: "eq", value: +_projectId }
                 ]);
             } catch (ex) {
                 utils.hideLoading();
@@ -28,18 +25,17 @@ define(["kendo", "app/timer", "app/data", "app/utils"], function (kendo, appTime
 
         onSelect: function (clickEvt) {
             data.timers.add(appTimer.create({
-                clientId: _clientId,
                 clientName: _clientName,
                 projectId: _projectId,
                 projectName: _projectName,
-                taskId: clickEvt.dataItem.id,
-                taskName: clickEvt.dataItem.name
+                taskId: clickEvt.dataItem.projectBillingCodeID,
+                taskName: clickEvt.dataItem.billingCode_Name
             }));
             utils.navigate("#timers-view");
         },
 
         onRefresh: function (clickEvt) {
-            data.tasks.read();
+            data.getData();
         }
     };
 });

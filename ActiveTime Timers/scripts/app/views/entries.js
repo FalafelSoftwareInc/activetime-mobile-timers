@@ -9,14 +9,14 @@ define(["jQuery", "kendo", "app/data", "app/utils", "app/config"], function ($, 
     });
 
     var updateTotalDuration = function (entries) {
-        var totalHours = 0;
+        var totalSeconds = 0;
         var entriesArray = entries.data();
         for(var i = 0; i < entriesArray.length; i++) {
-            totalHours += entriesArray[i].hours;
+            totalSeconds += entriesArray[i].durationSeconds;
         }
 
-        var minutes = Math.floor((totalHours % 1) * 60);
-        var hours = Math.floor(totalHours);
+        var minutes = Math.floor((totalSeconds % (60*60)) / 60);
+        var hours = Math.floor(totalSeconds / (60*60));
         var time = (hours > 99 ? hours : kendo.toString(hours, "00")) + ":" + kendo.toString(minutes, "00");
         viewModel.set("timerTotalDuration", time);
     };
@@ -42,14 +42,8 @@ define(["jQuery", "kendo", "app/data", "app/utils", "app/config"], function ($, 
             }
         },
 
-        displayTime: function (entry) {
-            var hours = Math.floor(entry.hours);
-            var minutes = Math.round(60 * (entry.hours % 1));
-            return (hours > 99 ? hours : kendo.toString(hours, "00")) + ":" + kendo.toString(minutes, "00");
-        },
-
-        onOpenTickspot: function () {
-            var url = kendo.format("https://{0}.tickspot.com/", config.login.account);
+        onOpenWeb: function () {
+            var url = "http://activetime-mvc.cloudapp.net/App";
             try {
                 utils.openChildBrowser(url);
             } catch (ex) {

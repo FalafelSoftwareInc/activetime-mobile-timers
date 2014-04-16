@@ -22,10 +22,6 @@ define(["kendo", "app/data", "app/utils", "app/config"], function (kendo, data, 
     var viewModel = kendo.observable({
         timers: data.timers,
 
-        getCustomerName: function (timer) {
-            return data.getClientNameById(timer.clientId);
-        },
-
         onSelected: function (clickEvt) {
             var target = $(clickEvt.target);
             if((target.hasClass("km-detail") || target.parent().hasClass("km-detail"))
@@ -57,8 +53,8 @@ define(["kendo", "app/data", "app/utils", "app/config"], function (kendo, data, 
             refresh();
         },
 
-        onOpenTickspot: function () {
-            var url = kendo.format("https://{0}.tickspot.com/", config.login.account);
+        onOpenWeb: function () {
+            var url = "http://activetime-mvc.cloudapp.net/App";
             try {
                 utils.openChildBrowser(url);
             } catch (ex) {

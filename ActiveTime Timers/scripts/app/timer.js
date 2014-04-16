@@ -84,6 +84,8 @@ define(["kendo", "app/config"], function (kendo, config) {
             this.hasTime = function () {
                 return this.get("durationSeconds") > 0 || this.get("startedAt") !== undefined;
             }
+            
+            this.updateDisplay();
         }
     });
 
