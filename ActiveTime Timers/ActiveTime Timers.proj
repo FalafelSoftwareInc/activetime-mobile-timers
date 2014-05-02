@@ -10,13 +10,15 @@
     <DeviceOrientations>Portrait;Landscape</DeviceOrientations>
     <iOSStatusBarStyle>Default</iOSStatusBarStyle>
     <AndroidHardwareAcceleration>true</AndroidHardwareAcceleration>
-    <iOSDisplayName>ActiveTime</iOSDisplayName>
+    <iOSDisplayName>
+    </iOSDisplayName>
     <BundleVersion>1.1</BundleVersion>
     <AndroidVersionCode>2</AndroidVersionCode>
     <iOSDeviceFamily>1;2</iOSDeviceFamily>
     <iOSBackgroundMode />
     <FrameworkVersion>3.2.0</FrameworkVersion>
     <CorePlugins>org.apache.cordova.console;org.apache.cordova.device;org.apache.cordova.device-orientation;org.apache.cordova.inappbrowser;org.apache.cordova.network-information;org.apache.cordova.dialogs;org.apache.cordova.splashscreen</CorePlugins>
+    <DisplayName>ActiveTime</DisplayName>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Telerik\ICE\Tools\Mobile\MobileTools.targets" />
 </Project>
