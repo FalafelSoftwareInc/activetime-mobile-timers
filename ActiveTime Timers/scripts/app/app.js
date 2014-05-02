@@ -64,7 +64,7 @@ define(["jQuery", "mobiscroll", "kendo", "../libs/kendo.binder.cssClass", "app/c
                 transition: "slide",
                 layout: "tabstrip",
                 initial: "login-view",
-                skin: window.device.platform === "Android" ? "flat" : undefined
+                skin: window.device.platform === "iOS" ? undefined : "flat"
             });
             utils.init(kendoApp);
 

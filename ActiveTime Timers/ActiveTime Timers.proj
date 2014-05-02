@@ -6,7 +6,7 @@
     <AppIdentifier>com.falafel.ActiveTimeMobileTimers</AppIdentifier>
     <ProjectName>ActiveTime</ProjectName>
     <IsRunnable>true</IsRunnable>
-    <AndroidPermissions>android.permission.INTERNET;android.permission.WRITE_EXTERNAL_STORAGE;android.permission.ACCESS_NETWORK_STATE</AndroidPermissions>
+    <AndroidPermissions>android.permission.ACCESS_NETWORK_STATE;android.permission.INTERNET;android.permission.WRITE_EXTERNAL_STORAGE</AndroidPermissions>
     <DeviceOrientations>Portrait;Landscape</DeviceOrientations>
     <iOSStatusBarStyle>Default</iOSStatusBarStyle>
     <AndroidHardwareAcceleration>true</AndroidHardwareAcceleration>
@@ -19,6 +19,15 @@
     <FrameworkVersion>3.2.0</FrameworkVersion>
     <CorePlugins>org.apache.cordova.console;org.apache.cordova.device;org.apache.cordova.device-orientation;org.apache.cordova.inappbrowser;org.apache.cordova.network-information;org.apache.cordova.dialogs;org.apache.cordova.splashscreen</CorePlugins>
     <DisplayName>ActiveTime</DisplayName>
+    <WP8SupportedResolutions>ID_RESOLUTION_WVGA;ID_RESOLUTION_WXGA;ID_RESOLUTION_HD720P</WP8SupportedResolutions>
+    <Author />
+    <Description>ActiveTime</Description>
+    <WP8Requirements />
+    <WP8Capabilities />
+    <WP8TileTitle>ActiveTime</WP8TileTitle>
+    <WP8ProductID>{1d664a71-7701-4085-b1e2-4da161adc958}</WP8ProductID>
+    <WP8PublisherID>{a489a713-e4ce-4a4d-a8f7-78a170acb5d4}</WP8PublisherID>
+    <WP8Publisher>Falafel Software, Inc.</WP8Publisher>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Telerik\ICE\Tools\Mobile\MobileTools.targets" />
 </Project>
